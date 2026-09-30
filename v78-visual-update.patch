@@ -1,0 +1,129 @@
+diff --git a/index.html b/index.html
+--- a/index.html
++++ b/index.html
+@@
+-<button aria-label="Сохранить или отправить" class="utilityBtn primaryAction" id="exportAction" title="Сохранить / отправить" type="button">↗</button>
++<button aria-label="Сохранить или отправить" class="utilityBtn primaryAction" id="exportAction" title="Сохранить / отправить" type="button"><svg aria-hidden="true" class="uiIcon sendIcon" viewBox="0 0 24 24"><path d="M4 12h13"></path><path d="m13 6 6 6-6 6"></path></svg></button>
+@@
+-<button class="reset statusAction selectionAllAction" id="selectAllTags" title="Выбрать все теги текущей вкладки" hidden><svg aria-hidden="true" class="footerIcon" viewBox="0 0 24 24"><path d="M6 4h9a3 3 0 0 1 3 3v2"></path><path d="M18 20H8a3 3 0 0 1-3-3V9"></path><path d="m8 13 3 3 5-7"></path></svg><span>Все</span></button>
+-<button class="reset statusAction selectedDoneAction" id="markSelectedDone" title="Отметить выбранные теги как выполненные" hidden><svg aria-hidden="true" class="footerIcon" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"></path></svg></button>
++<button class="reset statusAction selectionAllAction" id="selectAllTags" title="Выбрать все теги текущей вкладки" hidden><span>Все</span></button>
++<button class="reset statusAction selectedDoneAction" id="markSelectedDone" title="Отметить выбранные теги как выполненные" hidden><svg aria-hidden="true" class="footerIcon" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"></path></svg><span>Отметка</span></button>
+diff --git a/js/storage.js b/js/storage.js
+--- a/js/storage.js
++++ b/js/storage.js
+@@
+-    const name=document.createElement("span");name.textContent=page.name;
++    const name=document.createElement("span");name.className="pageName";name.textContent=page.name;
+diff --git a/js/ui.js b/js/ui.js
+--- a/js/ui.js
++++ b/js/ui.js
+@@
+-const THEME_ICON={light:"☼",navy:"☾",violet:"◈",green:"◒"};
++const THEME_ICON={light:"☼",navy:"☾",violet:"◼",green:"◒"};
++const THEME_LABEL={light:"светлая",navy:"тёмно-синяя",violet:"графитовая",green:"зелёная"};
+@@
+-  if(meta)meta.content={light:"#f5f7fa",navy:"#0d1726",violet:"#171124",green:"#0d211e"}[selected];
++  if(meta)meta.content={light:"#f5f7fa",navy:"#0d1726",violet:"#181b1f",green:"#0d211e"}[selected];
+@@
+-  if(btn){btn.title=`Тема: ${selected}. Нажми для смены`;btn.setAttribute("aria-label",`Сменить тему. Сейчас: ${selected}`);}
++  if(btn){const label=THEME_LABEL[selected]||selected;btn.title=`Тема: ${label}. Нажми для смены`;btn.setAttribute("aria-label",`Сменить тему. Сейчас: ${label}`);}
+diff --git a/css/app.css b/css/app.css
+--- a/css/app.css
++++ b/css/app.css
+@@
+ .selectedDoneAction[hidden]{display:none}
+ .selection-mode-active .selectedDoneAction:not([hidden]){display:flex}
++
++/* v78.1 visual-only patch: graphite theme + compact footer + readable navigation. */
++:root[data-theme="violet"]{
++  color-scheme:dark;
++  --top-divider:rgba(255,255,255,.09);
++  --bg:#181b1f;
++  --card:#23272c;
++  --text:#f1f3f5;
++  --muted:#aeb5bd;
++  --line:#3b424a;
++  --accent:#6fa8ff;
++  --accent-strong:#a9c9ff;
++  --soft:#2b394b;
++  --soft-success:#263d35;
++  --danger:#ff8e86;
++  --shadow:0 3px 12px rgba(0,0,0,.28);
++  --shadow-raised:0 8px 22px rgba(0,0,0,.42);
++  --control:#2b3036;
++  --input-bg:#202429;
++  --input-border:#4a535d;
++  --field-label:#c7cdd4;
++  --legend-label:#c7cdd4;
++}
++
++/* Keep the add FAB visually separate from the bottom action group. */
++.footer{
++  justify-content:flex-start;
++  gap:5px;
++  padding:7px 94px calc(7px + env(safe-area-inset-bottom)) 8px;
++}
++.statusActions{
++  flex:0 1 330px;
++  gap:5px;
++  min-width:0;
++}
++.footer .reset{
++  min-height:42px;
++  padding:.45em .42em;
++  font-size:clamp(12px,calc(12px * var(--fontScale)),15px);
++  border-color:var(--line);
++  box-shadow:0 2px 7px rgba(0,0,0,.12);
++}
++.footer .deleteAction{flex:0 1 82px;}
++.footer .statusAction{flex:0 1 86px;}
++
++/* Selection footer: text-only "Все" and a more explicit completion action. */
++.selectionAllAction,
++.selectedDoneAction{
++  display:flex;
++  align-items:center;
++  justify-content:center;
++  gap:5px;
++}
++.selectedDoneAction .footerIcon{width:20px;height:20px;flex:0 0 20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
++.selectedDoneAction{font-size:clamp(12.5px,calc(12.5px * var(--fontScale)),16px)!important}
++
++/* Slightly larger lower navigation labels; top utility navigation is untouched. */
++.tabs .tab{font-size:calc(14px * var(--fontScale));padding:8px 12px}
++.pageStrip{transform:translateY(-3px)}
+.pageChip{min-height:34px;padding:3px 9px}
++.pageChip .pageName{min-width:0;max-width:145px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
++.pageCount{flex:0 0 auto;white-space:nowrap}
++
++/* Fade page names before the fixed count instead of letting the count disappear. */
++.pageChip .pageName{position:relative;text-overflow:clip}
++.pageChip .pageName::after{content:"";position:absolute;right:0;top:0;bottom:0;width:18px;pointer-events:none;background:linear-gradient(90deg,transparent,var(--card) 78%)}
++.pageChip.active .pageName::after{background:linear-gradient(90deg,transparent,var(--soft) 78%)}
++
++/* Compact progress block. */
++.summaryCard{padding:8px 10px;margin:5px 0 8px;border-radius:13px}
++.progressTrack{height:7px;margin:6px 0 5px}
++.summaryKicker{font-size:calc(11.5px * var(--fontScale))}
++.summaryCount{font-size:calc(14px * var(--fontScale))}
++.summaryPercent{font-size:calc(18px * var(--fontScale))}
++.summaryFoot{font-size:calc(11.5px * var(--fontScale))}
++
++/* Stable vector icon for Save/Send. */
++.sendIcon{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
++
++/* Consistent button contours/shadows without disturbing checkboxes or the FAB. */
++.utilityBtn,.pageAction,.pageManageBar button,.reset,.action,.choice,.closex,.iconBtn,.searchClose{
++  box-shadow:0 2px 7px rgba(0,0,0,.10);
++}
++
++@media (max-width:420px){
++  .footer{padding-right:88px;gap:4px}
++  .statusActions{gap:4px;flex-basis:300px}
++  .footer .deleteAction{flex-basis:76px}
++  .footer .statusAction{flex-basis:78px}
++  .footer .reset{font-size:clamp(11.5px,calc(11.5px * var(--fontScale)),14px)}
++  .pageChip .pageName{max-width:125px}
++}
+*** End Patch
