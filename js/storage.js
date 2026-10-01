@@ -18,7 +18,7 @@ function encodeStateBase64(value){
   for(let i=0;i<bytes.length;i+=chunk){
     binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));
   }
-  return btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+  return btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,";
 }
 function decodeStateBase64(value){
   try{
@@ -57,7 +57,7 @@ function applySharedStateFromHash(){
 
 // Не даём браузеру превращать вертикальное вытягивание страницы в pull-to-refresh,
 // если движок поддерживает overscroll-behavior. Обычный вертикальный скролл при этом сохраняется.
-try{document.documentElement.style.overscrollBehaviorY="none";document.body.style.overscrollBehaviorY="none";}catch(_){}
+try{document.documentElement.style.overscrollBehaviorY="none";document.body.style.overscrollBehaviorY="none";}catch(_){ }
 
 const sharedState = applySharedStateFromHash();
 let docTitle = loadDocumentTitle();
@@ -243,7 +243,7 @@ function renderPages(){
       mark.className="pageChipMark";mark.textContent="✓";mark.setAttribute("aria-hidden","true");
       button.appendChild(mark);
     }
-    const name=document.createElement("span");name.textContent=page.name;
+    const name=document.createElement("span");name.className="pageName";name.textContent=page.name;
     const count=document.createElement("span");count.className="pageCount";count.textContent=`• ${page.data.length}`;
     button.append(name,count);
     button.onclick=()=>{
@@ -461,5 +461,5 @@ function flushSave(){
 function haptic(duration=18){
   try{
     if(typeof navigator!=="undefined" && typeof navigator.vibrate==="function") navigator.vibrate(duration);
-  }catch(_){}
+  }catch(_){ }
 }
